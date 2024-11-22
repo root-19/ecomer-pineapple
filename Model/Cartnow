@@ -1,0 +1,25 @@
+<?php
+class Cartnow {
+    private $conn;
+
+    public function __construct($databaseConnection) {
+        $this->conn = $databaseConnection;
+    }
+
+    public function addToCart($productId, $quantity) {
+        // Fetch product details
+        $stmt = $this->conn->prepare("SELECT * FROM products WHERE id = ?");
+        $stmt->execute([$productId]);
+        $product = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($product) {
+            // Prepare the insert statement
+            $stmt = $this->conn->prepare("INSERT INTO cart (product_id, name, image, price, type, quantity) VALUES (?, ?, ?, ?, ?, ?)");
+            // Use the correct variable to get the price from the fetched product array
+            return $stmt->execute([$product['id'], $product['name'], $product['image'], $product['price'], $product['type'], $quantity]);
+        }
+
+        return false; 
+    }
+}
+?>
